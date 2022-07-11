@@ -2,14 +2,14 @@
 seeds = false
 
 [programs.devnet]
-token_rewards_coupons = "EVW2iRMwL16kxvs9UbhxUA4L5i2mQDHaCdwqNcte1jGp"
+token_rewards_coupons = "ERUzTgkzMzXq738vac9e4sLGcPNSZAKQ9vuUuH87bY7b"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
 cluster = "devnet"
-wallet = "/home/johnliu/.config/solana/id.json"
+wallet = "/home/griffin/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
