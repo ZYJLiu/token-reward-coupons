@@ -3,18 +3,17 @@ use anchor_lang::solana_program::program::invoke_signed;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::instruction::create_metadata_accounts_v2;
 
-declare_id!("EVW2iRMwL16kxvs9UbhxUA4L5i2mQDHaCdwqNcte1jGp");
-
+declare_id!("E4XvK1aKMou8sLgtDRiEpsFTWi4FrKVTBUJkcFtYGqWc");
 #[program]
 pub mod token_rewards_coupons {
     use super::*;
 
-    // create an account to keep track of number of promos
-    pub fn create_promo_counter(ctx: Context<CreatePromoCounter>, name: String) -> Result<()> {
-        let promo_count = &mut ctx.accounts.promo_count;
-        promo_count.user = ctx.accounts.user.key();
-        promo_count.name = name;
-        promo_count.count = 0;
+    // create a merchant account
+    pub fn create_merchant(ctx: Context<CreateMerchant>, name: String) -> Result<()> {
+        let merchant = &mut ctx.accounts.merchant;
+        merchant.user = ctx.accounts.user.key();
+        merchant.name = name;
+        merchant.promo_count = 0;
 
         Ok(())
     }
@@ -31,13 +30,13 @@ pub mod token_rewards_coupons {
         let (_pda, bump) = Pubkey::find_program_address(
             &[
                 "MINT".as_bytes().as_ref(),
-                ctx.accounts.promo_data.key().as_ref(),
+                ctx.accounts.promo.key().as_ref(),
             ],
             ctx.program_id,
         );
 
         msg!("Create Promo Metadata");
-        let promo_data_key = ctx.accounts.promo_data.key();
+        let promo_data_key = ctx.accounts.promo.key();
         let seeds = &["MINT".as_bytes(), promo_data_key.as_ref(), &[bump]];
         let signer = [&seeds[..]];
 
@@ -73,56 +72,55 @@ pub mod token_rewards_coupons {
             &signer,
         )?;
 
-        let promo_data = &mut ctx.accounts.promo_data;
-        promo_data.promo_mint = ctx.accounts.promo_mint.key();
-        promo_data.promo_bump = bump;
+        let promo = &mut ctx.accounts.promo;
+        promo.mint = ctx.accounts.promo_mint.key();
+        promo.bump = bump;
 
-        let promo_count = &mut ctx.accounts.promo_count;
-        promo_count.count += 1;
+        let merchant = &mut ctx.accounts.merchant;
+        merchant.promo_count += 1;
 
         Ok(())
     }
 
     // mint a promo "coupon" token
     pub fn mint_nft(ctx: Context<MintNFT>) -> Result<()> {
-    let promo_data = ctx.accounts.promo_data.key();
+        let promo = ctx.accounts.promo.key();
 
-    let seeds = &[
-        "MINT".as_bytes(),
-        promo_data.as_ref(),
-        &[ctx.accounts.promo_data.promo_bump],
-    ];
-    let signer = [&seeds[..]];
+        let seeds = &[
+            "MINT".as_bytes(),
+            promo.as_ref(),
+            &[ctx.accounts.promo.bump],
+        ];
+        let signer = [&seeds[..]];
 
-    msg!("Minting NFT");
-    let cpi_accounts = MintTo {
-        mint: ctx.accounts.promo_mint.to_account_info(),
-        to: ctx.accounts.customer_nft.to_account_info(),
-        authority: ctx.accounts.promo_mint.to_account_info(),
-    };
-    msg!("CPI Accounts Assigned");
-    let cpi_program = ctx.accounts.token_program.to_account_info();
-    msg!("CPI Program Assigned");
-    let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, &signer);
-    msg!("CPI Context Assigned");
-    token::mint_to(cpi_ctx, 1)?;
-    msg!("Token Minted");
+        msg!("Minting NFT");
+        let cpi_accounts = MintTo {
+            mint: ctx.accounts.promo_mint.to_account_info(),
+            to: ctx.accounts.customer_nft.to_account_info(),
+            authority: ctx.accounts.promo_mint.to_account_info(),
+        };
+        msg!("CPI Accounts Assigned");
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        msg!("CPI Program Assigned");
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, &signer);
+        msg!("CPI Context Assigned");
+        token::mint_to(cpi_ctx, 1)?;
+        msg!("Token Minted");
 
-    Ok(())
+        Ok(())
+    }
 }
-}
-
 
 #[derive(Accounts)]
-pub struct CreatePromoCounter<'info> {
+pub struct CreateMerchant<'info> {
     #[account(
         init,
-        seeds = ["PROMO".as_bytes().as_ref(), user.key().as_ref()],
+        seeds = ["MERCHANT".as_bytes().as_ref(), user.key().as_ref()],
         bump,
         payer = user,
         space = 8 + 32 + 32 + 1 + 8
     )]
-    pub promo_count: Account<'info, PromoCount>,
+    pub merchant: Account<'info, Merchant>,
     #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -132,19 +130,20 @@ pub struct CreatePromoCounter<'info> {
 #[derive(Accounts)]
 pub struct CreatePromo<'info> {
     #[account(mut)]
-    pub promo_count: Account<'info, PromoCount>,
+    pub merchant: Account<'info, Merchant>,
+
     #[account(
         init,
-        seeds = [promo_count.key().as_ref(), promo_count.count.to_be_bytes().as_ref()],
+        seeds = [merchant.key().as_ref(), merchant.promo_count.to_be_bytes().as_ref()],
         bump,
         payer = user,
         space = 8 + 32 + 1
     )]
-    pub promo_data: Account<'info, PromoData>,
+    pub promo: Account<'info, Promo>,
 
     #[account(
         init,
-        seeds = ["MINT".as_bytes().as_ref(), promo_data.key().as_ref()],
+        seeds = ["MINT".as_bytes().as_ref(), promo.key().as_ref()],
         bump,
         payer = user,
         mint::decimals = 0,
@@ -152,6 +151,7 @@ pub struct CreatePromo<'info> {
 
     )]
     pub promo_mint: Account<'info, Mint>,
+
     #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -166,40 +166,35 @@ pub struct CreatePromo<'info> {
 }
 
 #[derive(Accounts)]
-pub struct MintNFT<'info>{
-    pub promo_data: Account<'info, PromoData>,
+pub struct MintNFT<'info> {
+    pub promo: Account<'info, Promo>,
 
     #[account(mut,
-        seeds = ["MINT".as_bytes().as_ref(), promo_data.key().as_ref()],
-        bump = promo_data.promo_bump
+        seeds = ["MINT".as_bytes().as_ref(), promo.key().as_ref()],
+        bump = promo.bump
     )]
     pub promo_mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
-    
-    /// CHECK: test
-    #[account(mut)]
-    pub user: AccountInfo<'info>,
 
     #[account(mut,
         constraint = customer_nft.mint == promo_mint.key(),
-        constraint = customer_nft.owner == customer.key() 
+        constraint = customer_nft.owner == user.key()
     )]
     pub customer_nft: Account<'info, TokenAccount>,
-    
+
     #[account(mut)]
-    pub customer: Signer<'info>,
-
+    pub user: Signer<'info>,
 }
 
 #[account]
-pub struct PromoCount {
-    pub user: Pubkey, // 32
-    pub name: String, // 4 + len()
-    pub count: u64,   // 8
+pub struct Merchant {
+    pub user: Pubkey,     // 32
+    pub name: String,     // 4 + len()
+    pub promo_count: u64, // 8
 }
 
 #[account]
-pub struct PromoData {
-    pub promo_mint: Pubkey, // 32
-    pub promo_bump: u8,     // 1
+pub struct Promo {
+    pub mint: Pubkey, // 32
+    pub bump: u8,     // 1
 }

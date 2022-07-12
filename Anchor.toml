@@ -2,7 +2,7 @@
 seeds = false
 
 [programs.devnet]
-token_rewards_coupons = "EVW2iRMwL16kxvs9UbhxUA4L5i2mQDHaCdwqNcte1jGp"
+token_rewards_coupons = "E4XvK1aKMou8sLgtDRiEpsFTWi4FrKVTBUJkcFtYGqWc"
 
 [registry]
 url = "https://anchor.projectserum.com"

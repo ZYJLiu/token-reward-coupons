@@ -24,15 +24,15 @@ describe("token-rewards-coupons", () => {
   const userWallet = anchor.workspace.TokenRewardsCoupons.provider.wallet;
 
   // it("Create Promo Counter", async () => {
-  //   const [promoCountPda, promoCountBump] = await PublicKey.findProgramAddress(
-  //     [Buffer.from("PROMO"), userWallet.publicKey.toBuffer()],
+  //   const [merchant, merchantBump] = await PublicKey.findProgramAddress(
+  //     [Buffer.from("MERCHANT"), userWallet.publicKey.toBuffer()],
   //     program.programId
   //   );
 
   //   const tx = await program.methods
-  //     .createPromoCounter("name")
+  //     .createMerchant("name")
   //     .accounts({
-  //       promoCount: promoCountPda,
+  //       merchant: merchant,
   //       user: userWallet.publicKey,
   //       systemProgram: SystemProgram.programId,
   //       rent: SYSVAR_RENT_PUBKEY,
@@ -47,13 +47,13 @@ describe("token-rewards-coupons", () => {
     );
 
     const [promoCountPda, promoCountBump] = await PublicKey.findProgramAddress(
-      [Buffer.from("PROMO"), userWallet.publicKey.toBuffer()],
+      [Buffer.from("MERCHANT"), userWallet.publicKey.toBuffer()],
       program.programId
     );
 
     let count = await (
-      await program.account.promoCount.fetch(promoCountPda)
-    ).count;
+      await program.account.merchant.fetch(promoCountPda)
+    ).promoCount;
     console.log(count);
 
     const [promoDataPda, promoDataBump] = await PublicKey.findProgramAddress(
@@ -75,8 +75,8 @@ describe("token-rewards-coupons", () => {
         "SYMBOL"
       )
       .accounts({
-        promoCount: promoCountPda,
-        promoData: promoDataPda,
+        merchant: promoCountPda,
+        promo: promoDataPda,
         promoMint: promoMintPda,
         user: userWallet.publicKey,
         systemProgram: SystemProgram.programId,
@@ -107,12 +107,12 @@ describe("token-rewards-coupons", () => {
     const tx2 = await program.methods
       .mintNft()
       .accounts({
-        promoData: promoDataPda,
+        promo: promoDataPda,
         promoMint: promoMintPda,
         tokenProgram: TOKEN_PROGRAM_ID,
-        user: userWallet.publicKey,
         customerNft: customerNft.address,
-        customer: userWallet.publicKey,
+        user: userWallet.publicKey,
+        // customer: userWallet.publicKey,
       })
       // .signers([payer])
       .rpc();
