@@ -3,7 +3,7 @@ use anchor_lang::solana_program::program::invoke_signed;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::instruction::create_metadata_accounts_v2;
 
-declare_id!("E4XvK1aKMou8sLgtDRiEpsFTWi4FrKVTBUJkcFtYGqWc");
+declare_id!("37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF");
 #[program]
 pub mod token_rewards_coupons {
     use super::*;
@@ -73,6 +73,7 @@ pub mod token_rewards_coupons {
         )?;
 
         let promo = &mut ctx.accounts.promo;
+        promo.user = ctx.accounts.user.key();
         promo.mint = ctx.accounts.promo_mint.key();
         promo.bump = bump;
 
@@ -137,7 +138,7 @@ pub struct CreatePromo<'info> {
         seeds = [merchant.key().as_ref(), merchant.promo_count.to_be_bytes().as_ref()],
         bump,
         payer = user,
-        space = 8 + 32 + 1
+        space = 8 + 32 + 32 + 1
     )]
     pub promo: Account<'info, Promo>,
 
@@ -195,6 +196,7 @@ pub struct Merchant {
 
 #[account]
 pub struct Promo {
+    pub user: Pubkey,
     pub mint: Pubkey, // 32
     pub bump: u8,     // 1
 }
