@@ -152,7 +152,6 @@ pub struct CreatePromo<'info> {
 
     )]
     pub promo_mint: Account<'info, Mint>,
-
     #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
