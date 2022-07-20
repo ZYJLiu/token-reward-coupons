@@ -3,17 +3,22 @@ use anchor_lang::solana_program::program::invoke_signed;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::instruction::create_metadata_accounts_v2;
 
-declare_id!("37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF");
+declare_id!("EEobzymbagNjDqrjfLvof3bhrjPbQGdPMPBRJaKV22m3");
 #[program]
 pub mod token_rewards_coupons {
     use super::*;
 
     // create a merchant account
-    pub fn create_merchant(ctx: Context<CreateMerchant>, name: String) -> Result<()> {
+    pub fn create_merchant(
+        ctx: Context<CreateMerchant>,
+        name: String,
+        image: String,
+    ) -> Result<()> {
         let merchant = &mut ctx.accounts.merchant;
         merchant.user = ctx.accounts.user.key();
         merchant.name = name;
         merchant.promo_count = 0;
+        merchant.image = image;
 
         Ok(())
     }
@@ -113,13 +118,14 @@ pub mod token_rewards_coupons {
 }
 
 #[derive(Accounts)]
+#[instruction(name: String, image:String)]
 pub struct CreateMerchant<'info> {
     #[account(
         init,
         seeds = ["MERCHANT".as_bytes().as_ref(), user.key().as_ref()],
         bump,
         payer = user,
-        space = 8 + 32 + 32 + 1 + 8
+        space = 8 + 32 + 8 + 4 + name.len() + 4 + image.len()
     )]
     pub merchant: Account<'info, Merchant>,
     #[account(mut)]
@@ -130,7 +136,8 @@ pub struct CreateMerchant<'info> {
 
 #[derive(Accounts)]
 pub struct CreatePromo<'info> {
-    #[account(mut)]
+    #[account(mut,
+     constraint = merchant.user == user.key())]
     pub merchant: Account<'info, Merchant>,
 
     #[account(
@@ -189,8 +196,9 @@ pub struct MintNFT<'info> {
 #[account]
 pub struct Merchant {
     pub user: Pubkey,     // 32
-    pub name: String,     // 4 + len()
     pub promo_count: u64, // 8
+    pub image: String,    // 4 + len()
+    pub name: String,     // 4 + len()
 }
 
 #[account]

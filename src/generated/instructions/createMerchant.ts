@@ -5,8 +5,8 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as beet from '@metaplex-foundation/beet'
-import * as web3 from '@solana/web3.js'
+import * as beet from "@metaplex-foundation/beet"
+import * as web3 from "@solana/web3.js"
 
 /**
  * @category Instructions
@@ -14,7 +14,8 @@ import * as web3 from '@solana/web3.js'
  * @category generated
  */
 export type CreateMerchantInstructionArgs = {
-  name: string
+    name: string
+    image: string
 }
 /**
  * @category Instructions
@@ -22,15 +23,16 @@ export type CreateMerchantInstructionArgs = {
  * @category generated
  */
 export const createMerchantStruct = new beet.FixableBeetArgsStruct<
-  CreateMerchantInstructionArgs & {
-    instructionDiscriminator: number[] /* size: 8 */
-  }
+    CreateMerchantInstructionArgs & {
+        instructionDiscriminator: number[] /* size: 8 */
+    }
 >(
-  [
-    ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['name', beet.utf8String],
-  ],
-  'CreateMerchantInstructionArgs'
+    [
+        ["instructionDiscriminator", beet.uniformFixedSizeArray(beet.u8, 8)],
+        ["name", beet.utf8String],
+        ["image", beet.utf8String],
+    ],
+    "CreateMerchantInstructionArgs"
 )
 /**
  * Accounts required by the _createMerchant_ instruction
@@ -42,14 +44,14 @@ export const createMerchantStruct = new beet.FixableBeetArgsStruct<
  * @category generated
  */
 export type CreateMerchantInstructionAccounts = {
-  merchant: web3.PublicKey
-  user: web3.PublicKey
-  systemProgram?: web3.PublicKey
-  rent?: web3.PublicKey
+    merchant: web3.PublicKey
+    user: web3.PublicKey
+    systemProgram?: web3.PublicKey
+    rent?: web3.PublicKey
 }
 
 export const createMerchantInstructionDiscriminator = [
-  249, 172, 245, 100, 32, 117, 97, 156,
+    249, 172, 245, 100, 32, 117, 97, 156,
 ]
 
 /**
@@ -63,41 +65,43 @@ export const createMerchantInstructionDiscriminator = [
  * @category generated
  */
 export function createCreateMerchantInstruction(
-  accounts: CreateMerchantInstructionAccounts,
-  args: CreateMerchantInstructionArgs,
-  programId = new web3.PublicKey('37kdkULv7NwBh9QSgv5SYSU3MQSZQwj5BXCUeMys16tF')
+    accounts: CreateMerchantInstructionAccounts,
+    args: CreateMerchantInstructionArgs,
+    programId = new web3.PublicKey(
+        "FWup1J8CtHmrKuiN7HCBCPfcjFZaUCMEkCW8XXK3TLpU"
+    )
 ) {
-  const [data] = createMerchantStruct.serialize({
-    instructionDiscriminator: createMerchantInstructionDiscriminator,
-    ...args,
-  })
-  const keys: web3.AccountMeta[] = [
-    {
-      pubkey: accounts.merchant,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.user,
-      isWritable: true,
-      isSigner: true,
-    },
-    {
-      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
-      isWritable: false,
-      isSigner: false,
-    },
-  ]
+    const [data] = createMerchantStruct.serialize({
+        instructionDiscriminator: createMerchantInstructionDiscriminator,
+        ...args,
+    })
+    const keys: web3.AccountMeta[] = [
+        {
+            pubkey: accounts.merchant,
+            isWritable: true,
+            isSigner: false,
+        },
+        {
+            pubkey: accounts.user,
+            isWritable: true,
+            isSigner: true,
+        },
+        {
+            pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
+            isWritable: false,
+            isSigner: false,
+        },
+        {
+            pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
+            isWritable: false,
+            isSigner: false,
+        },
+    ]
 
-  const ix = new web3.TransactionInstruction({
-    programId,
-    keys,
-    data,
-  })
-  return ix
+    const ix = new web3.TransactionInstruction({
+        programId,
+        keys,
+        data,
+    })
+    return ix
 }
