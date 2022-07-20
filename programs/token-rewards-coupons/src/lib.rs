@@ -9,11 +9,12 @@ pub mod token_rewards_coupons {
     use super::*;
 
     // create a merchant account
-    pub fn create_merchant(ctx: Context<CreateMerchant>, name: String) -> Result<()> {
+    pub fn create_merchant(ctx: Context<CreateMerchant>, name: String, url: String) -> Result<()> {
         let merchant = &mut ctx.accounts.merchant;
         merchant.user = ctx.accounts.user.key();
         merchant.name = name;
         merchant.promo_count = 0;
+        merchant.url = url;
 
         Ok(())
     }
@@ -119,7 +120,7 @@ pub struct CreateMerchant<'info> {
         seeds = ["MERCHANT".as_bytes().as_ref(), user.key().as_ref()],
         bump,
         payer = user,
-        space = 8 + 32 + 32 + 1 + 8
+        space = 8 + 32 + 32 + 1 + 32 + 8 // Why is the 2nd 8 here?
     )]
     pub merchant: Account<'info, Merchant>,
     #[account(mut)]
@@ -191,6 +192,7 @@ pub struct Merchant {
     pub user: Pubkey,     // 32
     pub name: String,     // 4 + len()
     pub promo_count: u64, // 8
+    pub url: String, // 32
 }
 
 #[account]
