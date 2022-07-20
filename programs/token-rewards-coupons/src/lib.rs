@@ -9,16 +9,24 @@ pub mod token_rewards_coupons {
     use super::*;
 
     // create a merchant account
+<<<<<<< HEAD
     pub fn create_merchant(
         ctx: Context<CreateMerchant>,
         name: String,
         image: String,
     ) -> Result<()> {
+=======
+    pub fn create_merchant(ctx: Context<CreateMerchant>, name: String, url: String) -> Result<()> {
+>>>>>>> 8dc3e539c6949939ff5306ffb371ee6689edca8c
         let merchant = &mut ctx.accounts.merchant;
         merchant.user = ctx.accounts.user.key();
         merchant.name = name;
         merchant.promo_count = 0;
+<<<<<<< HEAD
         merchant.image = image;
+=======
+        merchant.url = url;
+>>>>>>> 8dc3e539c6949939ff5306ffb371ee6689edca8c
 
         Ok(())
     }
@@ -125,7 +133,11 @@ pub struct CreateMerchant<'info> {
         seeds = ["MERCHANT".as_bytes().as_ref(), user.key().as_ref()],
         bump,
         payer = user,
+<<<<<<< HEAD
         space = 8 + 32 + 8 + 4 + name.len() + 4 + image.len()
+=======
+        space = 8 + 32 + 32 + 1 + 32 + 8 // Why is the 2nd 8 here?
+>>>>>>> 8dc3e539c6949939ff5306ffb371ee6689edca8c
     )]
     pub merchant: Account<'info, Merchant>,
     #[account(mut)]
@@ -197,8 +209,12 @@ pub struct MintNFT<'info> {
 pub struct Merchant {
     pub user: Pubkey,     // 32
     pub promo_count: u64, // 8
+<<<<<<< HEAD
     pub image: String,    // 4 + len()
     pub name: String,     // 4 + len()
+=======
+    pub url: String, // 32
+>>>>>>> 8dc3e539c6949939ff5306ffb371ee6689edca8c
 }
 
 #[account]
