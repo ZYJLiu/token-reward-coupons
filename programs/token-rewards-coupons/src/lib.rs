@@ -3,7 +3,7 @@ use anchor_lang::solana_program::program::invoke_signed;
 use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount};
 use mpl_token_metadata::instruction::create_metadata_accounts_v2;
 
-declare_id!("EEobzymbagNjDqrjfLvof3bhrjPbQGdPMPBRJaKV22m3");
+declare_id!("2voaAEWrDYbrP5wPgm3K3QdPGzvstAC1b8QuGaPRSg3U");
 #[program]
 pub mod token_rewards_coupons {
     use super::*;

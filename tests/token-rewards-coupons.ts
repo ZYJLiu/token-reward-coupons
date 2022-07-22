@@ -23,26 +23,26 @@ describe("token-rewards-coupons", () => {
     const connection = anchor.getProvider().connection
     const userWallet = anchor.workspace.TokenRewardsCoupons.provider.wallet
 
-    // it("Create Promo Counter", async () => {
-    //     const [merchant, merchantBump] = await PublicKey.findProgramAddress(
-    //         [Buffer.from("MERCHANT"), userWallet.publicKey.toBuffer()],
-    //         program.programId
-    //     )
+    it("Create Promo Counter", async () => {
+        const [merchant, merchantBump] = await PublicKey.findProgramAddress(
+            [Buffer.from("MERCHANT"), userWallet.publicKey.toBuffer()],
+            program.programId
+        )
 
-    //     const tx = await program.methods
-    //         .createMerchant(
-    //             "name",
-    //             "https://arweave.net/8APPIUAigWaUpEt5jC10M1-dgNGaN9kbr1yNI1qv20U?ext=png"
-    //         )
-    //         .accounts({
-    //             merchant: merchant,
-    //             user: userWallet.publicKey,
-    //             systemProgram: SystemProgram.programId,
-    //             rent: SYSVAR_RENT_PUBKEY,
-    //         })
-    //         .rpc()
-    //     console.log("Your transaction signature", tx)
-    // })
+        const tx = await program.methods
+            .createMerchant(
+                "name",
+                "https://arweave.net/8APPIUAigWaUpEt5jC10M1-dgNGaN9kbr1yNI1qv20U?ext=png"
+            )
+            .accounts({
+                merchant: merchant,
+                user: userWallet.publicKey,
+                systemProgram: SystemProgram.programId,
+                rent: SYSVAR_RENT_PUBKEY,
+            })
+            .rpc()
+        console.log("Your transaction signature", tx)
+    })
 
     it("Create and Mint Promo", async () => {
         const TOKEN_METADATA_PROGRAM_ID = new anchor.web3.PublicKey(
